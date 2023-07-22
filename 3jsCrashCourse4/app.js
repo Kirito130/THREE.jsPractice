@@ -1,14 +1,13 @@
 import * as THREE from "three";
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import gsap from "gsap";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 
-// Constants
-const canvas = document.querySelector(".three");
-const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight,
-};
+
+
+// Renderer
+const renderer = new THREE.WebGLRenderer();
+renderer.shadowMap.enabled = true;
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
 // Scene
 const scene = new THREE.Scene();
@@ -16,79 +15,88 @@ const scene = new THREE.Scene();
 
 // Camera
 const camera = new THREE.PerspectiveCamera(
-    50,
-    sizes.width/sizes.height,
+    45,
+    window.innerWidth/window.innerHeight,
     1000,
     0.1
 );
-camera.position.set(-10, 20, 20);
-scene.add(camera);
-
-
-// Lights
-// const light = new THREE.HemisphereLight(0xFFFFFF, 0xFFFFFF, 3);
-// scene.add(light);
-
+// Orbit for the Model
+const orbit = new OrbitControls(camera, renderer.domElement);
+camera.position.set(-10, 30, 30);
+orbit.update();
 
 // Models and Objects
 
-// Torus - Donut
-const torusGeo = new THREE.TorusGeometry(2, 1, 30, 50);
-const torusMat = new THREE.MeshBasicMaterial({color: 0xFFF000});
-const torus = new THREE.Mesh(torusGeo, torusMat);
-torus.rotation.y = - 0.5 * Math.PI;
-torus.position.set(4, 5, 0)
-scene.add(torus);
-
-
-// Plane
-const planeGeo = new THREE.PlaneGeometry(20, 20);
-const planeMat = new THREE.MeshBasicMaterial({color: 0xFFFFFF,side: THREE.DoubleSide});
-const plane = new THREE.Mesh(planeGeo, planeMat);
-plane.rotation.x = - 0.5 * Math.PI;
-scene.add(plane);
-
-
-// Octahedron
+// Box
 const boxGeo = new THREE.BoxGeometry(2, 2, 2);
 const boxMat = new THREE.MeshBasicMaterial({color: 0x00FF00});
 const box = new THREE.Mesh(boxGeo, boxMat);
 scene.add(box);
 
 
-// Orbit for the Model
-const orbit = new OrbitControls(camera, canvas);
-orbit.update();
+
+// Plane
+const planeGeo = new THREE.PlaneGeometry(30, 30);
+const planeMat = new THREE.MeshStandardMaterial({
+    color: 0xFFFFFF,
+    side: THREE.DoubleSide
+});
+const plane = new THREE.Mesh(planeGeo, planeMat);
+scene.add(plane);
+plane.rotation.x = - 0.5 * Math.PI;
+plane.receiveShadow = true;
+
+
+
+// Torus - Donut
+// const torusGeo = new THREE.TorusGeometry(2, 1, 30, 50);
+// const torusMat = new THREE.MeshStandardMaterial({
+//     color: 0xFFF000,
+// });
+// const torus = new THREE.Mesh(torusGeo, torusMat);
+// scene.add(torus);
+// // torus.rotation.y = - 0.5 * Math.PI;
+// torus.position.set(4, 5, 0)
+// torus.castShadow = true;
+
+
+// Lights
+// Ambient Light
+const amblight = new THREE.AmbientLight(0x333333);
+scene.add(amblight);
+
+// Directional Light
+// const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+// scene.add(directionalLight);
+// directionalLight.position.set(-30, 50, 0);
+// directionalLight.castShadow = true;
+// directionalLight.shadow.camera.bottom = -12;
+
+// const dLightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
+// scene.add(dLightHelper);
+
+// const dLightShadowHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
+// scene.add(dLightShadowHelper);
+
+
+// Spot Light
+const spotLight = new THREE.SpotLight(0xFFFFFF);
+scene.add(spotLight);
+spotLight.position.set(-100, 100, 0);
+spotLight.castShadow = true;
+spotLight.angle = 0.2;
+
+const sLightHelper = new THREE.SpotLightHelper(spotLight);
+scene.add(sLightHelper);
 
 
 // Helpers
 // Axes Helper
-const axesHelper = new THREE.AxesHelper(10);
-scene.add(axesHelper);
-// Grid Helper
-const gridHelper = new THREE.GridHelper(20);
-scene.add(gridHelper);
-
-
-
-
-// Renderer
-const renderer = new THREE.WebGLRenderer({canvas});
-renderer.setSize(sizes.width, sizes.height);
-
-
-
-// Resize
-window.addEventListener("resize", () => {
-    // Update Sizes
-    sizes.width = window.innerWidth;
-    sizes.height = window.innerHeight;
-  
-    // Update Camera
-    camera.aspect = sizes.width / sizes.height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(sizes.width, sizes.height);
-});
+// const axesHelper = new THREE.AxesHelper(20);
+// scene.add(axesHelper);
+// // Grid Helper
+// const gridHelper = new THREE.GridHelper(20);
+// scene.add(gridHelper);
 
 
 // Animations
@@ -101,4 +109,10 @@ const animate = (time) => {
 renderer.setAnimationLoop(animate);
 
 
-
+// Resize
+window.addEventListener("resize", () => {
+    // Update Camera
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});

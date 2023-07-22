@@ -61,7 +61,7 @@ controls.enableDamping = true;
 controls.enablePan = false;
 controls.enableZoom = false;
 controls.autoRotate = true;
-controls.autoRotateSpeed = 8;
+controls.autoRotateSpeed = 5;
 
 // Loops
 const loop = () => {
@@ -69,7 +69,7 @@ const loop = () => {
   renderer.render(scene, camera);
   window.requestAnimationFrame(loop);
 };
-renderer.setAnimationLoop(loop)
+loop();
 
 // Timeline Magic
 const tl = gsap.timeline({ defaults: { duration: 1 } });
